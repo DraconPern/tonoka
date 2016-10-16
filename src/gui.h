@@ -22,9 +22,9 @@
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/dialog.h>
-#include <wx/combobox.h>
 #include <wx/spinctrl.h>
 #include <wx/panel.h>
+#include <wx/combobox.h>
 #include <wx/frame.h>
 #include <wx/hyperlink.h>
 #include <wx/gauge.h>
@@ -91,8 +91,11 @@ class mainFrame : public wxFrame
 		wxStaticText* m_staticText1;
 		wxTextCtrl* m_directory;
 		wxButton* m_button6;
+		wxStaticText* m_staticText171;
+		wxSpinCtrl* m_depth;
+		wxPanel* m_panel4;
 		wxStaticText* m_staticText2;
-		wxComboBox* m_senddestination;
+		wxComboBox* m_destination;
 		wxButton* m_button121;
 		wxStaticText* m_staticText17;
 		wxSpinCtrl* m_threads;

@@ -79,7 +79,7 @@ if (sel == -1)
 return;
 
 wxBusyCursor wait;
-if (DICOMQueryScanner::Echo(m_destinations[sel]))
+if (DICOMSender::Echo(m_destinations[sel]))
 {
 wxMessageBox(_("Success"), _("Echo"), wxOK, this);
 }

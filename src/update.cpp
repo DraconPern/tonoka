@@ -111,7 +111,7 @@ int getUpdateJSON(std::string &updateinfo)
 		std::ostream request_stream(&request);
 		request_stream << "GET " << checkurl << " HTTP/1.0\r\n";
 		request_stream << "Host: " << host << "\r\n";
-		request_stream << "User-Agent: tonoka/" << FINACO_VERSION;
+		request_stream << "User-Agent: tonoka/" << TONOKA_VERSION;
 
 		const wxPlatformInfo &pinfo = wxPlatformInfo::Get();
 		request_stream << " (";

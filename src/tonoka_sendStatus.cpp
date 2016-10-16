@@ -23,7 +23,7 @@ void tonoka_sendStatus::OnStop( wxCommandEvent& event )
 
 void tonoka_sendStatus::OnTimer(wxTimerEvent& event)
 {
-	if (m_scanner->IsDone())
+	if (m_sender->IsDone())
 	{
 		timer.Disconnect(wxEVT_TIMER, wxTimerEventHandler(tonoka_sendStatus::OnTimer), NULL, this);
 		EndModal(0);
