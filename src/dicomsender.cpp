@@ -101,7 +101,7 @@ void DICOMSender::SendStudy(boost::filesystem::path path)
 	naturalpathmap instances;	// sopid, filename, this ensures we send out instances in sopid order	
 
 	// scan the directory for all instances in the study
-
+	ScanDir(path, instances, sopclassuidtransfersyntax);
 
 	do
 	{
@@ -220,6 +220,31 @@ int DICOMSender::SendABatch(const mapset &sopclassuidtransfersyntax, naturalpath
 	return 0;
 }
 
+void DICOMSender::ScanDir(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax)
+{
+	boost::filesystem::directory_iterator end_iter;
+
+	if (boost::filesystem::exists(path) && boost::filesystem::is_directory(path))
+	{
+		for (boost::filesystem::directory_iterator dir_iter(path); dir_iter != end_iter; dir_iter++)
+		{
+			if (IsCanceled())
+			{
+				break;
+			}
+
+			if (boost::filesystem::is_regular_file(dir_iter->status()))
+			{
+				ScanFile(*dir_iter, instances, sopclassuidtransfersyntax);
+			}
+			else if (boost::filesystem::is_directory(dir_iter->status()))
+			{
+				// descent recursively
+				ScanDir(*dir_iter, instances, sopclassuidtransfersyntax);
+			}
+		}
+	}
+}
 
 void DICOMSender::ScanFile(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax)
 {

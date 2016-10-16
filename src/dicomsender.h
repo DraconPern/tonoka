@@ -33,6 +33,7 @@ protected:
 	typedef std::map<std::string, boost::filesystem::path, doj::alphanum_less<std::string> > naturalpathmap;
 	int SendABatch(const mapset &sopclassuidtransfersyntax, naturalpathmap &instances);
 
+	void ScanDir(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax);
 	void ScanFile(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax);
 
 	bool IsCanceled();
