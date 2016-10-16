@@ -65,9 +65,10 @@ void DICOMSender::DoSendThread(void *obj)
 void DICOMSender::DoSend(DestinationEntry destination, int threads)
 {
 	OFLog::configure(OFLogger::OFF_LOG_LEVEL);
-
+	
 	// get a list of files	
 	study_dirs.clear();
+	service.reset();
 	patientdata.GetStudies(boost::bind(&DICOMSender::fillstudies, this, _1));
 	for (std::vector<boost::filesystem::path>::iterator it = study_dirs.begin(); it != study_dirs.end(); ++it)
 	{
@@ -86,6 +87,7 @@ void DICOMSender::DoSend(DestinationEntry destination, int threads)
 
 int DICOMSender::fillstudies(Study &study)
 {
+	// only put in 
 	if (study.checked)
 		study_dirs.push_back(study.path);
 	return 0;
@@ -99,9 +101,10 @@ void DICOMSender::SendStudy(boost::filesystem::path path)
 	int unsentcountafter = 0;
 	mapset sopclassuidtransfersyntax;
 	naturalpathmap instances;	// sopid, filename, this ensures we send out instances in sopid order	
+	std::string study_uid;
 
 	// scan the directory for all instances in the study
-	ScanDir(path, instances, sopclassuidtransfersyntax);
+	ScanDir(path, instances, sopclassuidtransfersyntax, study_uid);
 
 	do
 	{
@@ -139,11 +142,17 @@ void DICOMSender::SendStudy(boost::filesystem::path path)
 		}
 	}
 	while (!IsCanceled() && unsentcountafter > 0 && retry < 10000);
+
+	if (unsentcountafter == 0)
+		patientdata.SetStudyCheck(study_uid, false);
 }
 
 int DICOMSender::SendABatch(const mapset &sopclassuidtransfersyntax, naturalpathmap &instances)
 {		
 	DcmSCU scu;
+
+	if (IsCanceled())
+		return 1;
 
 	scu.setVerbosePCMode(true);
 	scu.setAETitle(m_destination.ourAETitle.c_str());
@@ -220,13 +229,14 @@ int DICOMSender::SendABatch(const mapset &sopclassuidtransfersyntax, naturalpath
 	return 0;
 }
 
-void DICOMSender::ScanDir(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax)
+void DICOMSender::ScanDir(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax, std::string &study_uid)
 {
+	boost::filesystem::path someDir(path);
 	boost::filesystem::directory_iterator end_iter;
 
-	if (boost::filesystem::exists(path) && boost::filesystem::is_directory(path))
+	if (boost::filesystem::exists(someDir) && boost::filesystem::is_directory(someDir))
 	{
-		for (boost::filesystem::directory_iterator dir_iter(path); dir_iter != end_iter; dir_iter++)
+		for (boost::filesystem::directory_iterator dir_iter(someDir); dir_iter != end_iter; dir_iter++)
 		{
 			if (IsCanceled())
 			{
@@ -235,25 +245,24 @@ void DICOMSender::ScanDir(boost::filesystem::path path, naturalpathmap &instance
 
 			if (boost::filesystem::is_regular_file(dir_iter->status()))
 			{
-				ScanFile(*dir_iter, instances, sopclassuidtransfersyntax);
+				ScanFile(*dir_iter, instances, sopclassuidtransfersyntax, study_uid);
 			}
 			else if (boost::filesystem::is_directory(dir_iter->status()))
 			{
 				// descent recursively
-				ScanDir(*dir_iter, instances, sopclassuidtransfersyntax);
+				ScanDir(*dir_iter, instances, sopclassuidtransfersyntax, study_uid);
 			}
 		}
 	}
 }
 
-void DICOMSender::ScanFile(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax)
+void DICOMSender::ScanFile(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax, std::string &study_uid)
 {
 	DcmFileFormat dfile;
 	OFCondition cond = dfile.loadFile(path.c_str());
 	if (cond.good())
 	{		
-		OFString studyuid, modality, studydesc, studydate;
-		OFString seriesuid, seriesdesc;
+		OFString studyuid;		
 		OFString sopuid, sopclassuid, transfersyntax;
 		
 		dfile.getDataset()->findAndGetOFString(DCM_StudyInstanceUID, studyuid);
@@ -268,6 +277,8 @@ void DICOMSender::ScanFile(boost::filesystem::path path, naturalpathmap &instanc
 
 		// remember the class and transfersyntax
 		sopclassuidtransfersyntax[sopclassuid.c_str()].insert(transfersyntax.c_str());
+
+		study_uid = studyuid.c_str();
 	}
 
 }
