@@ -93,7 +93,11 @@ int PatientData::AddStudy(std::string studyuid, std::string patid, std::string p
 int getstudiescallback(void *param,int columns,char** values, char**names)
 {
 	boost::function<int(Study &)> pfn = * static_cast<boost::function<int(Study &)> *>(param);
+#ifdef _WIN32		
+	Study result(values[0], values[1], values[2], values[3], values[4], boost::locale::conv::utf_to_utf<boost::filesystem::path::value_type>(values[5]), values[6][0] == '1');
+#else
 	Study result(values[0], values[1], values[2], values[3], values[4], values[5], values[6][0] == '1');
+#endif	
 	return pfn(result);
 }
 
@@ -109,7 +113,7 @@ void PatientData::GetStudies(boost::function< int(Study &) > action)
 
 void PatientData::GetStudies(std::string patientid, std::string patientname, boost::function< int(Study &) > action)
 {
-	std::string selectsql = "SELECT studyuid, patid, patname, studydesc, studydate, path FROM studies WHERE (patid = ? AND patname = ?) ORDER BY studyuid ASC";
+	std::string selectsql = "SELECT studyuid, patid, patname, studydesc, studydate, path, checked FROM studies WHERE (patid = ? AND patname = ?) ORDER BY studyuid ASC";
 	sqlite3_stmt *select;
 	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
 	sqlite3_bind_text(select, 1, patientid.c_str(), patientid.length(), SQLITE_STATIC);

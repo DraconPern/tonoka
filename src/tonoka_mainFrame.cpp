@@ -27,8 +27,8 @@ mainFrame( parent )
   	m_studies->SetColumnWidth(1, 200);
   	m_studies->SetColumnWidth(2, 100);
   	m_studies->SetColumnWidth(3, 200);
-	m_studies->SetColumnWidth(4, 200);
-	m_studies->SetColumnWidth(5, 200);
+	m_studies->SetColumnWidth(4, 300);
+	m_studies->SetColumnWidth(5, 300);
 
   	// Fill in settings
   	m_engine.LoadDestinationList();
@@ -121,7 +121,22 @@ void tonoka_mainFrame::OnUpdate( wxCommandEvent& event )
 
 void tonoka_mainFrame::OnSend( wxCommandEvent& event )
 {
-// TODO: Implement OnSend
+	if (m_destination->GetSelection() == wxNOT_FOUND)
+	{
+		wxMessageBox(_("Please select a destination."), _("Error"), wxOK, this);
+		return;
+	}
+
+	m_engine.StartSend(m_destination->GetSelection(), m_threads->GetValue());
+
+	tonoka_sendStatus dlg(this);
+	dlg.m_sender = &m_engine.sender;
+
+	// show and wait for thread to end.
+	dlg.ShowModal();
+
+	m_studies->DeleteAllItems();
+	m_engine.patientdata.GetStudies(boost::bind(&tonoka_mainFrame::fillstudiescallback, this, _1));
 }
 
 void tonoka_mainFrame::OnAbout( wxCommandEvent& event )
@@ -150,12 +165,12 @@ void tonoka_mainFrame::FillDestinationList()
 
 void tonoka_mainFrame::m_studiesOnListItemChecked(wxListEvent& event)
 {
-	m_engine.patientdata.SetStudyCheck(m_studies->GetItemText(event.GetIndex(), 1).ToUTF8().data(), true);
+	m_engine.patientdata.SetStudyCheck(m_studies->GetItemText(event.GetIndex(), 4).ToUTF8().data(), true);
 }
 
 void tonoka_mainFrame::m_studiesOnListItemUnchecked(wxListEvent& event)
 {
-	m_engine.patientdata.SetStudyCheck(m_studies->GetItemText(event.GetIndex(), 1).ToUTF8().data(), false);
+	m_engine.patientdata.SetStudyCheck(m_studies->GetItemText(event.GetIndex(), 4).ToUTF8().data(), false);
 }
 
 

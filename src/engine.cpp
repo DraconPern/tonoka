@@ -158,7 +158,7 @@ void engine::StartSend(int destination, int threads)
 		dest = destinations[destination];
 	}
 
-	// sender.DoSendAsync(dest, threads);
+	sender.DoSendAsync(dest, threads);
 }
 
 void engine::StopSend()

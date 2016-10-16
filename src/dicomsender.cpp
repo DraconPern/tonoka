@@ -63,18 +63,46 @@ void DICOMSender::DoSendThread(void *obj)
 }
 
 void DICOMSender::DoSend(DestinationEntry destination, int threads)
-{	
-	
+{
+	OFLog::configure(OFLogger::OFF_LOG_LEVEL);
+
 	// get a list of files	
-	// patientdata.GetStudies(boost::bind(&DICOMSender::fillstudies, this, _1));
-	for (std::vector<std::string>::iterator it = studies.begin() ; it != studies.end(); ++it)
+	study_dirs.clear();
+	patientdata.GetStudies(boost::bind(&DICOMSender::fillstudies, this, _1));
+	for (std::vector<boost::filesystem::path>::iterator it = study_dirs.begin(); it != study_dirs.end(); ++it)
 	{
-		
+		// post them in the work
+		service.post(boost::bind(&DICOMSender::SendStudy, this, *it));
 	}
 
+	// run 5 threads
+	boost::thread_group threadgroup;
+	for (int i = 0; i < threads; i++)
+		threadgroup.create_thread(boost::bind(&boost::asio::io_service::run, &service));
+
+	// wait for everything to finish, Cancel() calls service stop and stops farther work from processing
+	threadgroup.join_all();
+}
+
+int DICOMSender::fillstudies(Study &study)
+{
+	if (study.checked)
+		study_dirs.push_back(study.path);
+	return 0;
+}
+
+void DICOMSender::SendStudy(boost::filesystem::path path)
+{
+	// each instance of this function is a thread, don't write to class members!
 	int retry = 0;
 	int unsentcountbefore = 0;
 	int unsentcountafter = 0;
+	mapset sopclassuidtransfersyntax;
+	naturalpathmap instances;	// sopid, filename, this ensures we send out instances in sopid order	
+
+	// scan the directory for all instances in the study
+
+
 	do
 	{
 		// get number of unsent images
@@ -82,7 +110,7 @@ void DICOMSender::DoSend(DestinationEntry destination, int threads)
 
 		// batch send
 		if (unsentcountbefore > 0)
-			SendABatch();		
+			SendABatch(sopclassuidtransfersyntax, instances);
 
 		unsentcountafter = instances.size();
 		
@@ -111,29 +139,11 @@ void DICOMSender::DoSend(DestinationEntry destination, int threads)
 		}
 	}
 	while (!IsCanceled() && unsentcountafter > 0 && retry < 10000);
-
-	// clear 		
-	studies.clear();
-	sopclassuidtransfersyntax.clear();
 }
 
-class MyDcmSCU: public DcmSCU
-{
-public:
-	MyDcmSCU(DICOMSender &sender) : sender(sender) {}
-	bool newtransfer;
-protected:
-	virtual void notifySENDProgress(const unsigned long byteCount)
-	{
-		
-	}
-
-	DICOMSender &sender;	
-};
-
-int DICOMSender::SendABatch()
+int DICOMSender::SendABatch(const mapset &sopclassuidtransfersyntax, naturalpathmap &instances)
 {		
-	MyDcmSCU scu(*this);
+	DcmSCU scu;
 
 	scu.setVerbosePCMode(true);
 	scu.setAETitle(m_destination.ourAETitle.c_str());
@@ -148,7 +158,7 @@ int DICOMSender::SendABatch()
 	defaulttransfersyntax.push_back(UID_LittleEndianExplicitTransferSyntax);
 
 	// for every class..
-	for(mapset::iterator it = sopclassuidtransfersyntax.begin(); it != sopclassuidtransfersyntax.end(); it++)
+	for (mapset::const_iterator it = sopclassuidtransfersyntax.begin(); it != sopclassuidtransfersyntax.end(); it++)
 	{
 		// make list of what's in the file, and propose it first.  default proposed as a seperate context
 		OFList<OFString> transfersyntax;
@@ -208,6 +218,33 @@ int DICOMSender::SendABatch()
 
 	scu.releaseAssociation();	
 	return 0;
+}
+
+
+void DICOMSender::ScanFile(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax)
+{
+	DcmFileFormat dfile;
+	OFCondition cond = dfile.loadFile(path.c_str());
+	if (cond.good())
+	{		
+		OFString studyuid, modality, studydesc, studydate;
+		OFString seriesuid, seriesdesc;
+		OFString sopuid, sopclassuid, transfersyntax;
+		
+		dfile.getDataset()->findAndGetOFString(DCM_StudyInstanceUID, studyuid);
+
+		dfile.getDataset()->findAndGetOFString(DCM_SOPInstanceUID, sopuid);
+		dfile.getDataset()->findAndGetOFString(DCM_SOPClassUID, sopclassuid);
+		DcmXfer filexfer(dfile.getDataset()->getOriginalXfer());
+		transfersyntax = filexfer.getXferID();
+	
+		// add file to send
+		instances.insert(std::pair<std::string, boost::filesystem::path>(sopuid.c_str(), path));
+
+		// remember the class and transfersyntax
+		sopclassuidtransfersyntax[sopclassuid.c_str()].insert(transfersyntax.c_str());
+	}
+
 }
 
 bool DICOMSender::Echo(DestinationEntry destination)

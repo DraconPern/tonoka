@@ -5,6 +5,7 @@
 #include <set>
 #include <boost/filesystem.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/asio/io_service.hpp>
 #include "patientdata.h"
 #include "destinationentry.h"
 
@@ -26,7 +27,13 @@ protected:
 	static void DoSendThread(void *obj);
 	PatientData &patientdata;
 
-	int SendABatch();
+	void SendStudy(boost::filesystem::path path);
+
+	typedef std::map<std::string, std::set<std::string> > mapset;
+	typedef std::map<std::string, boost::filesystem::path, doj::alphanum_less<std::string> > naturalpathmap;
+	int SendABatch(const mapset &sopclassuidtransfersyntax, naturalpathmap &instances);
+
+	void ScanFile(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax);
 
 	bool IsCanceled();
 	void ClearCancel();
@@ -36,16 +43,13 @@ protected:
 	boost::mutex mutex;
 	bool cancelEvent, doneEvent;	
 	DestinationEntry m_destination;
-	int m_threads;
-
-	typedef std::map<std::string, std::set<std::string> > mapset;
-	mapset sopclassuidtransfersyntax;
-
-	typedef std::map<std::string, boost::filesystem::path, doj::alphanum_less<std::string> > naturalpathmap;
-	int fillstudies(Study &study);
+	int m_threads;	
 	
-	std::vector<std::string> studies;
-	naturalpathmap instances;	// sopid, filename, this ensures we send out instances in sopid order	
+	int fillstudies(Study &study);
+
+	boost::asio::io_service service;
+	
+	std::vector<boost::filesystem::path> study_dirs;	// list of directories that we are sending	
 };
 
 
