@@ -144,7 +144,10 @@ void DICOMSender::SendStudy(boost::filesystem::path path)
 	while (!IsCanceled() && unsentcountafter > 0 && retry < 10000);
 
 	if (unsentcountafter == 0)
+	{
 		patientdata.SetStudyCheck(study_uid, false);
+		patientdata.Save();
+	}
 }
 
 int DICOMSender::SendABatch(const mapset &sopclassuidtransfersyntax, naturalpathmap &instances)
