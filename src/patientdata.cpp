@@ -12,7 +12,7 @@ PatientData::PatientData()
 
 void PatientData::createdb()
 {
-	if (sqlite3_open_v2(":memory:", &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_NOMUTEX, NULL) != SQLITE_OK)
+	if (sqlite3_open_v2(":memory:", &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK)
 	{
 		std::ostringstream msg;
 		msg << "Can't create database: " << sqlite3_errmsg(db);
@@ -31,7 +31,7 @@ PatientData::~PatientData()
 void PatientData::Save()
 {
 	sqlite3 *backup;
-	sqlite3_open_v2("tonoka.db", &backup, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_NOMUTEX, NULL);	
+	sqlite3_open_v2("tonoka.db", &backup, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);	
 	sqlite3_backup *bk = sqlite3_backup_init(backup, "main", db, "main");
 	sqlite3_backup_step(bk, -1);
 	sqlite3_backup_finish(bk);
@@ -42,7 +42,7 @@ void PatientData::Save()
 bool PatientData::Load()
 {
 	sqlite3 *backup = NULL;
-	if (sqlite3_open_v2("tonoka.db", &backup, SQLITE_OPEN_READWRITE | SQLITE_OPEN_NOMUTEX, NULL) != SQLITE_OK)
+	if (sqlite3_open_v2("tonoka.db", &backup, SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK)
 	{
 		if (backup)		
 			sqlite3_close(backup);

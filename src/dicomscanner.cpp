@@ -47,6 +47,9 @@ bool DICOMFileScanner::ScanFile(const boost::filesystem::path &basepath, const b
 		OFString studyuid, modality, studydesc, studydate;
 		OFString seriesuid, seriesdesc;
 		OFString sopuid, sopclassuid, transfersyntax;
+
+		dfile.getDataset()->convertToUTF8();
+
 		dfile.getDataset()->findAndGetOFString(DCM_PatientName, patientname);
 		if (patientname.size() == 0)
 			return false;
