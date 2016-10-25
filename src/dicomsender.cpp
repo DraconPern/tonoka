@@ -108,6 +108,9 @@ void DICOMSender::SendStudy(boost::filesystem::path path)
 	// scan the directory for all instances in the study
 	ScanDir(path, instances, sopclassuidtransfersyntax, study_uid);
 
+	if (IsCanceled())
+		return;
+
 	int total = instances.size();
 
 	do
