@@ -10,6 +10,7 @@ set (CMAKE_CXX_STANDARD 11)
 
 if(WIN32)
 	#VC++ stuff	
+	add_definitions(-DWIN32_LEAN_AND_MEAN)
 	add_definitions(-D_UNICODE)
 	add_definitions(-D_BIND_TO_CURRENT_VCLIBS_VERSION=1)
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT /Zi")
