@@ -95,8 +95,6 @@ int DICOMSender::fillstudies(Study &study)
 
 void DICOMSender::SendStudy(boost::filesystem::path path)
 {
-	if (IsCanceled())
-		return;
 	// each instance of this function is a thread, don't write to class members!
 	int retry = 0;
 	int unsentcountbefore = 0;
@@ -107,8 +105,6 @@ void DICOMSender::SendStudy(boost::filesystem::path path)
 
 	// scan the directory for all instances in the study
 	ScanDir(path, instances, sopclassuidtransfersyntax, study_uid);
-
-	int total = instances.size();
 
 	do
 	{
@@ -147,7 +143,7 @@ void DICOMSender::SendStudy(boost::filesystem::path path)
 	}
 	while (!IsCanceled() && unsentcountafter > 0 && retry < 10000);
 
-	if (unsentcountafter == 0 && total > 0)
+	if (unsentcountafter == 0)
 	{
 		patientdata.SetStudyCheck(study_uid, false);
 		patientdata.Save();
@@ -333,7 +329,6 @@ void DICOMSender::Cancel()
 {
 	boost::mutex::scoped_lock lk(mutex);
 	cancelEvent = true;
-	service.stop();
 }
 
 void DICOMSender::ClearCancel()
