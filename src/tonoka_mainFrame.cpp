@@ -42,8 +42,7 @@ mainFrame( parent )
 	m_threads->SetValue(wxConfig::Get()->ReadLong("Threads", 4));
 	m_depth->SetValue(wxConfig::Get()->ReadLong("Depth", 1));
 
-  	if(m_engine.patientdata.Load())
-  		m_engine.patientdata.GetStudies(boost::bind(&tonoka_mainFrame::fillstudiescallback, this, _1));
+  	m_engine.patientdata.GetStudies(boost::bind(&tonoka_mainFrame::fillstudiescallback, this, _1));
 
   	m_studies->Connect(wxEVT_LIST_ITEM_CHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemChecked), NULL, this);
   	m_studies->Connect(wxEVT_LIST_ITEM_UNCHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemUnchecked), NULL, this);
@@ -57,8 +56,6 @@ tonoka_mainFrame::~tonoka_mainFrame()
 	wxConfig::Get()->Write("Threads", m_threads->GetValue());
 	wxConfig::Get()->Write("Depth", m_depth->GetValue());
 	wxConfig::Get()->Flush();
-
-	m_engine.patientdata.Save();
 }
 
 void tonoka_mainFrame::OnBrowse( wxCommandEvent& event )

@@ -75,8 +75,6 @@ public:
 	void GetInstances(std::string seriesuid, boost::function< int(Instance &) > action);
 	// void GetInstances(std::vector<Instance> &instances);
 	void Clear();
-	bool Load();
-	void Save();
 
 protected:
 	void createdb();
