@@ -42,10 +42,7 @@ mainFrame( parent )
 	m_threads->SetValue(wxConfig::Get()->ReadLong("Threads", 4));
 	m_depth->SetValue(wxConfig::Get()->ReadLong("Depth", 1));
 
-  	m_engine.patientdata.GetStudies(boost::bind(&tonoka_mainFrame::fillstudiescallback, this, _1));
-
-  	m_studies->Connect(wxEVT_LIST_ITEM_CHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemChecked), NULL, this);
-  	m_studies->Connect(wxEVT_LIST_ITEM_UNCHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemUnchecked), NULL, this);
+	FillStudyList();
 }
 
 tonoka_mainFrame::~tonoka_mainFrame()
@@ -112,8 +109,7 @@ void tonoka_mainFrame::OnUpdate( wxCommandEvent& event )
 	// show and wait for thread to end.
 	dlg.ShowModal();
 
-	m_studies->DeleteAllItems();
-	m_engine.patientdata.GetStudies(boost::bind(&tonoka_mainFrame::fillstudiescallback, this, _1));
+	FillStudyList();
 }
 
 void tonoka_mainFrame::OnSend( wxCommandEvent& event )
@@ -132,8 +128,7 @@ void tonoka_mainFrame::OnSend( wxCommandEvent& event )
 	// show and wait for thread to end.
 	dlg.ShowModal();
 
-	m_studies->DeleteAllItems();
-	m_engine.patientdata.GetStudies(boost::bind(&tonoka_mainFrame::fillstudiescallback, this, _1));
+	FillStudyList();
 }
 
 void tonoka_mainFrame::OnAbout( wxCommandEvent& event )
@@ -158,6 +153,18 @@ void tonoka_mainFrame::FillDestinationList()
 
 	for(itr = m_engine.destinations.begin(); itr != m_engine.destinations.end(); itr++)
 		m_destination->Append(wxString::FromUTF8((*itr).name.c_str()));
+}
+
+void tonoka_mainFrame::FillStudyList()
+{
+	m_studies->Disconnect(wxEVT_LIST_ITEM_CHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemChecked), NULL, this);
+	m_studies->Disconnect(wxEVT_LIST_ITEM_UNCHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemUnchecked), NULL, this);
+
+	m_studies->DeleteAllItems();
+	m_engine.patientdata.GetStudies(boost::bind(&tonoka_mainFrame::fillstudiescallback, this, _1));
+
+	m_studies->Connect(wxEVT_LIST_ITEM_CHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemChecked), NULL, this);
+	m_studies->Connect(wxEVT_LIST_ITEM_UNCHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemUnchecked), NULL, this);
 }
 
 void tonoka_mainFrame::m_studiesOnListItemChecked(wxListEvent& event)

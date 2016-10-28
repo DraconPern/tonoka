@@ -44,6 +44,7 @@ class tonoka_mainFrame : public mainFrame
 		void m_studiesOnListItemChecked(wxListEvent& event);
 		void m_studiesOnListItemUnchecked(wxListEvent& event);
 		void FillDestinationList();
+		void FillStudyList();
 		int fillstudiescallback(Study &study);
 
 		engine m_engine;
