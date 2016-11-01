@@ -60,6 +60,7 @@ public:
 
 	PatientData();
 	~PatientData();
+	void createdb();
 	int AddPatient(std::string patid, std::string patname, std::string birthday);
 	void GetPatients(boost::function< int(Patient &) > action);
 	// void GetPatients(std::vector<Patient> &patients);
@@ -77,7 +78,7 @@ public:
 	void Clear();
 
 protected:
-	void createdb();
+	
 
 	sqlite3 *db;
 

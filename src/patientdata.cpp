@@ -6,12 +6,14 @@
 
 PatientData::PatientData()
 {
-	db = NULL;
-	createdb();
+	db = NULL;	
 }
 
 void PatientData::createdb()
-{
+{	
+	if (db)
+		sqlite3_close(db);
+
 	if (sqlite3_open_v2("tonoka.db", &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK)
 	{
 		std::ostringstream msg;
