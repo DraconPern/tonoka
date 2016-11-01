@@ -274,10 +274,13 @@ void DICOMSender::ScanFile(boost::filesystem::path path, naturalpathmap &instanc
 		OFString studyuid;		
 		OFString sopuid, sopclassuid, transfersyntax;
 		
-		dfile.getDataset()->findAndGetOFString(DCM_StudyInstanceUID, studyuid);
+		if (dfile.getDataset()->findAndGetOFString(DCM_StudyInstanceUID, studyuid).bad()) 
+			return;
+		if (dfile.getDataset()->findAndGetOFString(DCM_SOPInstanceUID, sopuid).bad())
+			return;
+		if (dfile.getDataset()->findAndGetOFString(DCM_SOPClassUID, sopclassuid).bad())
+			return;
 
-		dfile.getDataset()->findAndGetOFString(DCM_SOPInstanceUID, sopuid);
-		dfile.getDataset()->findAndGetOFString(DCM_SOPClassUID, sopclassuid);
 		DcmXfer filexfer(dfile.getDataset()->getOriginalXfer());
 		transfersyntax = filexfer.getXferID();
 	
