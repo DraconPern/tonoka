@@ -184,28 +184,7 @@ int tonoka_mainFrame::fillstudiescallback(Study &study)
 {
 	m_studies->InsertItem(0, "");
 	m_studies->SetItem(0, 1, study.patname);
-
-	struct tm thedate;
-	memset(&thedate, 0, sizeof(struct tm));
-	try
-	{
-		thedate.tm_year = boost::lexical_cast<int>(study.studydate.substr(0, 4)) - 1900;
-		thedate.tm_mon = boost::lexical_cast<int>(study.studydate.substr(4, 2)) - 1;
-		thedate.tm_mday = boost::lexical_cast<int>(study.studydate.substr(6, 2));
-	}
-	catch (...)
-	{
-		thedate.tm_year = 0;
-		thedate.tm_mon = 0;
-		thedate.tm_mday = 1;
-	}
-
-	char buf[1024];
-	memset(buf, 0, 1024);
-
-	strftime(buf, 1024, "%x", &thedate);
-
-	m_studies->SetItem(0, 2, wxString::FromUTF8(buf));
+	m_studies->SetItem(0, 2, wxString::FromUTF8(study.studydate.c_str()));
 	m_studies->SetItem(0, 3, wxString::FromUTF8(study.studydesc.c_str()));
 	m_studies->SetItem(0, 4, wxString::FromUTF8(study.studyuid.c_str()));
 	m_studies->SetItem(0, 5, study.path.c_str());

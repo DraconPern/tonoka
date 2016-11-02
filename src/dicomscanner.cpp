@@ -60,7 +60,9 @@ bool DICOMFileScanner::ScanFile(const boost::filesystem::path &basepath, const b
 		dfile.getDataset()->findAndGetOFString(DCM_Modality, modality);
 		dfile.getDataset()->findAndGetOFString(DCM_StudyDescription, studydesc);
 		dfile.getDataset()->findAndGetOFString(DCM_StudyDate, studydate);		
-		
+		if (DcmDate::checkStringValue(studydate, "1").bad())
+			studydate = "";
+
 		patientdata.AddStudy(studyuid.c_str(), patientid.c_str(), patientname.c_str(), studydesc.c_str(), studydate.c_str(), basepath);
 		return true;
 	}
