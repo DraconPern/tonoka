@@ -117,12 +117,7 @@ void tonoka_mainFrame::OnSave(wxCommandEvent& event)
 
 void tonoka_mainFrame::OnUpdate( wxCommandEvent& event )
 {	
-#ifdef _WIN32
-	// on Windows, boost::filesystem::path is a wstring already
-	boost::filesystem::path p = m_directory->GetValue();
-#else
-	boost::filesystem::path p = m_directory->GetValue().ToUTF8().data();
-#endif
+	boost::filesystem::path p = m_directory->GetValue().fn_str();
 	m_engine.StartScan(p, m_depth->GetValue());
 
 
