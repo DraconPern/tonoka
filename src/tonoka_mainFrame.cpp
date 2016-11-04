@@ -119,7 +119,7 @@ void tonoka_mainFrame::OnSave(wxCommandEvent& event)
 
 void tonoka_mainFrame::OnUpdate( wxCommandEvent& event )
 {	
-	boost::filesystem::path p = m_directory->GetValue().fn_str();
+	boost::filesystem::path p(m_directory->GetValue().fn_str());
 	m_engine.StartScan(p, m_depth->GetValue());
 
 
