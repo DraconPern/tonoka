@@ -100,6 +100,8 @@ class mainFrame : public wxFrame
 		wxStaticText* m_staticText17;
 		wxSpinCtrl* m_threads;
 		wxListCtrl* m_studies;
+		wxButton* m_button13;
+		wxButton* m_button14;
 		wxButton* m_button12;
 		wxButton* m_update;
 		wxButton* m_move;
@@ -111,6 +113,8 @@ class mainFrame : public wxFrame
 		virtual void OnBrowse( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDestinationEdit( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_studiesOnListColClick( wxListEvent& event ) { event.Skip(); }
+		virtual void OnLoad( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSave( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnClear( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnUpdate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSend( wxCommandEvent& event ) { event.Skip(); }

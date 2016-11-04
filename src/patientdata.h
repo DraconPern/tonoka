@@ -61,6 +61,9 @@ public:
 	PatientData();
 	~PatientData();
 	void createdb();
+	void Clear();
+	bool Load(boost::filesystem::path filename);
+	bool Save(boost::filesystem::path filename);
 	int AddPatient(std::string patid, std::string patname, std::string birthday);
 	void GetPatients(boost::function< int(Patient &) > action);
 	// void GetPatients(std::vector<Patient> &patients);
@@ -74,12 +77,9 @@ public:
 	// void GetSeries(std::vector<Series> &series);
 	int AddInstance(std::string sopuid, std::string seriesuid, boost::filesystem::path filename, std::string sopclassuid, std::string transfersyntax);
 	void GetInstances(std::string seriesuid, boost::function< int(Instance &) > action);
-	// void GetInstances(std::vector<Instance> &instances);
-	void Clear();
+	// void GetInstances(std::vector<Instance> &instances);	
 
 protected:
-	
-
 	sqlite3 *db;
 
 };

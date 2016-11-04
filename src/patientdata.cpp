@@ -6,7 +6,7 @@
 
 PatientData::PatientData()
 {
-	db = NULL;	
+	db = NULL;
 }
 
 void PatientData::createdb()
@@ -40,6 +40,32 @@ void PatientData::Clear()
 	createdb();
 }
 
+bool PatientData::Load(boost::filesystem::path filename)
+{
+	sqlite3 *backup = NULL;
+	std::string p = boost::locale::conv::utf_to_utf<char>(filename.c_str());
+	sqlite3_open_v2(p.c_str(), &backup, SQLITE_OPEN_READONLY, NULL);
+	sqlite3_backup *bk = sqlite3_backup_init(db, "main", backup, "main");
+	int ret = sqlite3_backup_step(bk, -1);
+	sqlite3_backup_finish(bk);
+	sqlite3_close(backup);
+	
+	return ret == SQLITE_DONE;
+}
+
+bool PatientData::Save(boost::filesystem::path filename)
+{
+	sqlite3 *backup = NULL;
+	std::string p = boost::locale::conv::utf_to_utf<char>(filename.c_str());
+	sqlite3_open_v2(p.c_str(), &backup, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+	sqlite3_backup *bk = sqlite3_backup_init(backup, "main", db, "main");
+	int ret = sqlite3_backup_step(bk, -1);
+	sqlite3_backup_finish(bk);	
+	sqlite3_close(backup);
+
+	return ret == SQLITE_DONE;
+}
+
 int PatientData::AddStudy(std::string studyuid, std::string patid, std::string patname, std::string studydesc, std::string studydate, boost::filesystem::path path)
 {
 	sqlite3_stmt *insert;
@@ -50,11 +76,8 @@ int PatientData::AddStudy(std::string studyuid, std::string patid, std::string p
 	sqlite3_bind_text(insert, 3, patname.c_str(), patname.length(), SQLITE_STATIC);
 	sqlite3_bind_text(insert, 4, studydesc.c_str(), studydesc.length(), SQLITE_STATIC);
 	sqlite3_bind_text(insert, 5, studydate.c_str(), studydate.length(), SQLITE_STATIC);
-#ifdef _WIN32
+
 	std::string p = boost::locale::conv::utf_to_utf<char>(path.c_str());
-#else
-	std::string p = path.string();
-#endif
 	sqlite3_bind_text(insert, 6, p.c_str(), p.length(), SQLITE_STATIC);
 	int res = sqlite3_exec_stmt(insert, NULL, NULL, NULL);
 	sqlite3_finalize(insert);
@@ -67,11 +90,9 @@ int PatientData::AddStudy(std::string studyuid, std::string patid, std::string p
 int getstudiescallback(void *param,int columns,char** values, char**names)
 {
 	boost::function<int(Study &)> pfn = * static_cast<boost::function<int(Study &)> *>(param);
-#ifdef _WIN32		
+
 	Study result(values[0], values[1], values[2], values[3], values[4], boost::locale::conv::utf_to_utf<boost::filesystem::path::value_type>(values[5]), values[6][0] == '1');
-#else
-	Study result(values[0], values[1], values[2], values[3], values[4], values[5], values[6][0] == '1');
-#endif	
+
 	return pfn(result);
 }
 

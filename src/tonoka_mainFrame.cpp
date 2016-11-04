@@ -59,7 +59,7 @@ tonoka_mainFrame::~tonoka_mainFrame()
 
 void tonoka_mainFrame::OnBrowse( wxCommandEvent& event )
 {
-  wxDirDialog dlg(this, "", m_directory->GetValue(), wxRESIZE_BORDER | wxDD_DIR_MUST_EXIST);
+	wxDirDialog dlg(this, "", m_directory->GetValue(), wxRESIZE_BORDER | wxDD_DIR_MUST_EXIST);
 	if(dlg.ShowModal() == wxID_OK)
 	{
 		m_directory->SetValue(dlg.GetPath());
@@ -90,8 +90,29 @@ void tonoka_mainFrame::m_studiesOnListColClick( wxListEvent& event )
 
 void tonoka_mainFrame::OnClear( wxCommandEvent& event )
 {
-  m_studies->DeleteAllItems();
-  m_engine.patientdata.Clear();
+	wxBusyCursor wait;
+	m_studies->DeleteAllItems();
+	m_engine.patientdata.Clear();
+}
+
+void tonoka_mainFrame::OnLoad(wxCommandEvent& event)
+{
+	wxFileDialog dlg(this, "Load...", wxEmptyString, wxEmptyString, "sqlite database (*.db)|*.db", wxFD_OPEN | wxRESIZE_BORDER | wxFD_FILE_MUST_EXIST);
+	if (dlg.ShowModal() == wxID_OK)
+	{
+		m_studies->DeleteAllItems();
+		m_engine.patientdata.Load(dlg.GetPath().fn_str());
+		FillStudyList();
+	}
+}
+
+void tonoka_mainFrame::OnSave(wxCommandEvent& event)
+{
+	wxFileDialog dlg(this, "Save...", wxEmptyString, wxEmptyString, "sqlite database (*.db)|*.db", wxFD_SAVE | wxRESIZE_BORDER);
+	if (dlg.ShowModal() == wxID_OK)
+	{		
+		m_engine.patientdata.Save(dlg.GetPath().fn_str());
+	}
 }
 
 void tonoka_mainFrame::OnUpdate( wxCommandEvent& event )
@@ -159,6 +180,7 @@ void tonoka_mainFrame::FillDestinationList()
 
 void tonoka_mainFrame::FillStudyList()
 {
+	wxBusyCursor wait;
 	m_studies->Disconnect(wxEVT_LIST_ITEM_CHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemChecked), NULL, this);
 	m_studies->Disconnect(wxEVT_LIST_ITEM_UNCHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemUnchecked), NULL, this);
 
