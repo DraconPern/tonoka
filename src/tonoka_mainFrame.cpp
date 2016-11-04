@@ -42,9 +42,11 @@ mainFrame( parent )
 	m_threads->SetValue(wxConfig::Get()->ReadLong("Threads", 4));
 	m_depth->SetValue(wxConfig::Get()->ReadLong("Depth", 1));
 
-	m_engine.patientdata.createdb();
-
-	FillStudyList();
+	{
+		wxBusyInfo wait("Please wait, loading existing tonoka.db ...");
+		m_engine.patientdata.createdb();
+		FillStudyList();
+	}
 }
 
 tonoka_mainFrame::~tonoka_mainFrame()
