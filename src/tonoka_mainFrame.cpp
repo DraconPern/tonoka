@@ -103,7 +103,8 @@ void tonoka_mainFrame::OnLoad(wxCommandEvent& event)
 	if (dlg.ShowModal() == wxID_OK)
 	{
 		m_studies->DeleteAllItems();
-		m_engine.patientdata.Load(dlg.GetPath().fn_str());
+    boost::filesystem::path p(dlg.GetPath().fn_str());
+		m_engine.patientdata.Load(p);
 		FillStudyList();
 	}
 }
@@ -112,13 +113,14 @@ void tonoka_mainFrame::OnSave(wxCommandEvent& event)
 {
 	wxFileDialog dlg(this, "Save...", wxEmptyString, wxEmptyString, "sqlite database (*.db)|*.db", wxFD_SAVE | wxRESIZE_BORDER);
 	if (dlg.ShowModal() == wxID_OK)
-	{		
-		m_engine.patientdata.Save(dlg.GetPath().fn_str());
+	{
+    boost::filesystem::path p(dlg.GetPath().fn_str());
+		m_engine.patientdata.Save(p);
 	}
 }
 
 void tonoka_mainFrame::OnUpdate( wxCommandEvent& event )
-{	
+{
 	boost::filesystem::path p(m_directory->GetValue().fn_str());
 	m_engine.StartScan(p, m_depth->GetValue());
 
