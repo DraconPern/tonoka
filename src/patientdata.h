@@ -7,28 +7,6 @@
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 
-class Instance
-{
-public:
-	Instance(std::string sopuid, std::string seriesuid, boost::filesystem::path filename, std::string sopclassuid, std::string transfersyntax)
-		: sopuid(sopuid), seriesuid(seriesuid), filename(filename), sopclassuid(sopclassuid), transfersyntax(transfersyntax) {}
-	std::string sopuid;
-	std::string seriesuid;
-	boost::filesystem::path filename;
-	std::string sopclassuid;
-	std::string transfersyntax;
-};
-
-class Series
-{
-public:
-	Series(std::string seriesuid, std::string studyuid, std::string seriesdesc)
-		: seriesuid(seriesuid), studyuid(studyuid), seriesdesc(seriesdesc) {}
-	std::string seriesuid;
-	std::string studyuid;
-	std::string seriesdesc;
-};
-
 class Study
 {
 public:
@@ -44,16 +22,6 @@ public:
 	bool checked;
 };
 
-class Patient
-{
-public:
-	Patient(std::string patid, std::string name, std::string birthday)
-		: patid(patid), name(name), birthday(birthday) {};
-	std::string patid;
-	std::string name;
-	std::string birthday;
-};
-
 class PatientData
 {
 public:
@@ -64,20 +32,11 @@ public:
 	void Clear();
 	bool Load(boost::filesystem::path filename);
 	bool Save(boost::filesystem::path filename);
-	int AddPatient(std::string patid, std::string patname, std::string birthday);
-	void GetPatients(boost::function< int(Patient &) > action);
-	// void GetPatients(std::vector<Patient> &patients);
 	int AddStudy(std::string studyuid, std::string patid, std::string patname, std::string studydesc, std::string studydate, boost::filesystem::path path);
 	void GetStudies(boost::function< int(Study &) > action);
 	void GetStudies(std::string patientid, std::string patientname, boost::function< int(Study &) > action);
 	void SetStudyCheck(std::string studyuid, bool checked);
-	// void GetStudies(std::vector<Study> &studies);
-	int AddSeries(std::string seriesuid, std::string studyuid, std::string seriesdesc);	
-	void GetSeries(std::string studyuid, boost::function< int(Series &) > action);
-	// void GetSeries(std::vector<Series> &series);
-	int AddInstance(std::string sopuid, std::string seriesuid, boost::filesystem::path filename, std::string sopclassuid, std::string transfersyntax);
-	void GetInstances(std::string seriesuid, boost::function< int(Instance &) > action);
-	// void GetInstances(std::vector<Instance> &instances);	
+	// void GetStudies(std::vector<Study> &studies);	
 
 protected:
 	sqlite3 *db;

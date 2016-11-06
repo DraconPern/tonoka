@@ -21,7 +21,7 @@ void PatientData::createdb()
 		throw std::runtime_error(msg.str().c_str());				
 	}	
 		
-	sqlite3_exec(db, "CREATE TABLE studies (studyuid TEXT UNIQUE, patid TEXT, patname TEXT, studydesc TEXT, studydate TEXT, path TEXT, checked TEXT)", NULL, NULL, NULL);	
+	sqlite3_exec(db, "CREATE TABLE studies (studyuid TEXT UNIQUE, patid TEXT, patname TEXT, studydesc TEXT, studydate TEXT, path TEXT, checked TEXT)", NULL, NULL, NULL);
 }
 
 PatientData::~PatientData()
