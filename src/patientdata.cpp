@@ -162,7 +162,7 @@ int PatientData::GetStudyCount()
 	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
 
 	int s = 0;
-	sqlite3_exec_stmt(select, getstudiescallback, &s, NULL);
+	sqlite3_exec_stmt(select, setint, &s, NULL);
 	sqlite3_finalize(select);
 
 	return s;
