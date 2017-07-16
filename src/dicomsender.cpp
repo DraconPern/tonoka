@@ -226,8 +226,8 @@ int DICOMSenderImpl::SendABatch(const mapset &sopclassuidtransfersyntax, natural
 	scu.setPeerHostName(m_destination.destinationHost.c_str());
 	scu.setPeerPort(m_destination.destinationPort);
 	scu.setPeerAETitle(m_destination.destinationAETitle.c_str());
-	scu.setACSETimeout(30);
-	scu.setDIMSETimeout(60);
+	scu.setACSETimeout(60);
+	scu.setDIMSETimeout(120);
 	scu.setDatasetConversionMode(true);
 
 	OFList<OFString> defaulttransfersyntax;
