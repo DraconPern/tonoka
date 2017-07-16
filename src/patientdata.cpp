@@ -2,6 +2,7 @@
 #include "patientdata.h"
 #include "sqlite3_exec_stmt.h"
 #include <boost/locale.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
 PatientData::PatientData()
@@ -151,7 +152,8 @@ void PatientData::GetStudy(int id, Study& study)
 	sqlite3_stmt *select;
 	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
 	sqlite3_bind_int(select, 1, id);
-	sqlite3_exec_stmt(select, getstudiescallback, &boost::bind(&setstudy, _1, study), NULL);
+	boost::function< int(Study &) > action = boost::bind(&setstudy, _1, study);
+	sqlite3_exec_stmt(select, getstudiescallback, &action, NULL);
 	sqlite3_finalize(select);
 }
 
@@ -159,7 +161,7 @@ int setint(void *param, int columns, char** values, char**names)
 {
 	int *a = (int *)param;
 
-	*a = (int)(values[0]);
+	*a = boost::lexical_cast<int>(values[0]);
 
 	return 0;
 }
@@ -167,12 +169,7 @@ int setint(void *param, int columns, char** values, char**names)
 int PatientData::GetCheckedStudyCount()
 {
 	std::string selectsql = "SELECT COUNT(*) FROM studies WHERE (checked = '1')";
-	sqlite3_stmt *select;
-	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
-
 	int s = 0;
-	sqlite3_exec_stmt(select, setint, &s, NULL);
-	sqlite3_finalize(select);
-
+	sqlite3_exec(db, selectsql.c_str(), setint, &s, NULL);
 	return s;
 }
