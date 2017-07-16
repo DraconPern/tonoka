@@ -2,7 +2,6 @@
 #define _ENGINE_
 
 #include <vector>
-#include "sqlite3.h"
 #include "destinationentry.h"
 #include "dicomscanner.h"
 #include "dicomsender.h"

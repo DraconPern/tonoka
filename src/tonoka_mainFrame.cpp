@@ -23,7 +23,7 @@ mainFrame( parent )
 	m_studies->InsertColumn(6, "Status");
   	m_studies->EnableCheckboxes();
 
-  	m_studies->SetColumnWidth(0, wxLIST_AUTOSIZE);
+  	m_studies->SetColumnWidth(0, 10);
   	m_studies->SetColumnWidth(1, 200);
   	m_studies->SetColumnWidth(2, 100);
   	m_studies->SetColumnWidth(3, 200);

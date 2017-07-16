@@ -45,7 +45,7 @@ cd %DEVSPACE%
 git clone git://git.dcmtk.org/dcmtk.git
 cd dcmtk
 git pull
-REM git checkout -f 5371e1d84526e7544ab7e70fb47e3cdb4e9231b2
+git checkout -f 5371e1d84526e7544ab7e70fb47e3cdb4e9231b2
 mkdir build-%TYPE%
 cd build-%TYPE%
 cmake .. -G %GENERATOR% -DDCMTK_WIDE_CHAR_FILE_IO_FUNCTIONS=1 -DDCMTK_WITH_ZLIB=1 -DWITH_ZLIBINC=%DEVSPACE%\zlib\%TYPE% -DDCMTK_WITH_ICONV=1 -DWITH_LIBICONVINC=%DEVSPACE%\libiconv\%TYPE% -DCMAKE_INSTALL_PREFIX=%DEVSPACE%\dcmtk\%TYPE%

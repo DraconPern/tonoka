@@ -10,7 +10,7 @@ set (CMAKE_CXX_STANDARD 11)
 
 if(WIN32)
 	#VC++ stuff	
-	add_definitions(-DWIN32_LEAN_AND_MEAN)
+	add_definitions(-D_WIN32_WINNT=0x0501)	
 	add_definitions(-D_UNICODE)
 	add_definitions(-D_BIND_TO_CURRENT_VCLIBS_VERSION=1)
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT /Zi")
@@ -22,12 +22,6 @@ set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME     ON)
 find_package(Boost REQUIRED thread filesystem system regex date_time)
-
-set(wxWidgets_USE_STATIC   ON)
-#define this so that wxWidgets doesn't define it. Conflicts w/ dcmtk's declaration
-add_definitions(-DHAVE_SSIZE_T)
-find_package(wxWidgets COMPONENTS core base adv REQUIRED)
-include(${wxWidgets_USE_FILE})
 
 if(WIN32)
 	#enable dcmtk filename to have wide version, only affects WIN32.  http://utf8everywhere.org/
@@ -45,8 +39,14 @@ add_definitions(-DOPJ_STATIC)
 #include fmjpeg2koj
 find_package(fmjpeg2k REQUIRED HINTS ${FMJPEG2K})
 
+set(wxWidgets_USE_STATIC   ON)
+#define this so that wxWidgets doesn't define it. Conflicts w/ dcmtk's declaration
+add_definitions(-DHAVE_SSIZE_T)
+find_package(wxWidgets COMPONENTS core base adv REQUIRED)
+include(${wxWidgets_USE_FILE})
+
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/sqlite3 ${Boost_INCLUDE_DIRS} ${FMJPEG2K_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS} ${VLD}/include)
-LINK_DIRECTORIES(${FMJPEG2K}/lib ${Boost_LIBRARY_DIRS}  ${VLD}/lib/Win32)
+LINK_DIRECTORIES(${FMJPEG2K}/lib ${Boost_LIBRARY_DIRS}  ${VLD}/lib/Win64)
 
 set(tonoka_HEADERS
 	src/gui.h
@@ -62,8 +62,10 @@ set(tonoka_HEADERS
 	src/destinationentry.h
 	src/dicomscanner.h
 	src/dicomsender.h
+	src/dcm2img.h
 	src/update.h
 	src/alphanum.hpp
+	src/ndcappender.h
 )
 
 set(tonoka_SRCS
@@ -82,7 +84,9 @@ set(tonoka_SRCS
 	src/patientdata.cpp
 	src/dicomscanner.cpp
 	src/dicomsender.cpp
+	src/dcm2img.cpp
 	src/update.cpp
+	src/ndcappender.cpp
 )
 
 if(WIN32)

@@ -1,8 +1,16 @@
 
 #include "dicomsender.h"
+#include "alphanum.hpp"
+#include <set>
+#include <boost/filesystem.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/asio/io_service.hpp>
+#include "patientdata.h"
+#include "destinationentry.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include "destinationentry.h"
+#include "ndcappender.h"
 
 // work around the fact that dcmtk doesn't work in unicode mode, so all string operation needs to be converted from/to mbcs
 #ifdef _UNICODE
@@ -23,19 +31,61 @@
 #define UNICODE 1
 #endif
 
+class DICOMSenderImpl
+{
 
+public:
+	DICOMSenderImpl(PatientData &patientdata);
+	~DICOMSenderImpl(void);
 
-DICOMSender::DICOMSender(PatientData &patientdata) 
+	void DoSendAsync(DestinationEntry destination, int threads);
+	void DoSend(DestinationEntry destination, int threads);
+
+	static bool Echo(DestinationEntry destination);
+
+	void Cancel();
+	bool IsDone();
+protected:
+	static void DoSendThread(void *obj);
+	PatientData &patientdata;
+
+	void SendStudy(boost::filesystem::path path);
+
+	typedef std::map<std::string, std::set<std::string> > mapset;
+	typedef std::map<std::string, boost::filesystem::path, doj::alphanum_less<std::string> > naturalpathmap;
+	int SendABatch(const mapset &sopclassuidtransfersyntax, naturalpathmap &instances);
+
+	void ScanDir(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax, std::string &study_uid);
+	void ScanFile(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax, std::string &study_uid);
+
+	bool IsCanceled();
+	void ClearCancel();
+	void SetDone(bool state);
+
+	// threading data
+	boost::mutex mutex;
+	bool cancelEvent, doneEvent;
+	DestinationEntry m_destination;
+	int m_threads;
+
+	int fillstudies(Study &study);
+
+	boost::asio::io_service service;
+
+	std::vector<boost::filesystem::path> study_dirs;	// list of directories that we are sending	
+};
+
+DICOMSenderImpl::DICOMSenderImpl(PatientData &patientdata)
 	: patientdata(patientdata)
 {			
 	cancelEvent = doneEvent = false;
 }
 
-DICOMSender::~DICOMSender()
+DICOMSenderImpl::~DICOMSenderImpl()
 {
 }
 
-void DICOMSender::DoSendAsync(DestinationEntry destination, int threads)
+void DICOMSenderImpl::DoSendAsync(DestinationEntry destination, int threads)
 {
 	SetDone(false);
 	ClearCancel();
@@ -44,36 +94,39 @@ void DICOMSender::DoSendAsync(DestinationEntry destination, int threads)
 	this->m_threads = threads;
 
 	// start the thread, let the sender manage (e.g. cancel), so we don't need to track anymore
-	boost::thread t(DICOMSender::DoSendThread, this);
+	boost::thread t(DICOMSenderImpl::DoSendThread, this);
 	t.detach();
 }
 
 
-void DICOMSender::DoSendThread(void *obj)
+void DICOMSenderImpl::DoSendThread(void *obj)
 {
-	DICOMSender *me = (DICOMSender *) obj;
+	DICOMSenderImpl *me = (DICOMSenderImpl *) obj;
 
-	OFLog::configure(OFLogger::OFF_LOG_LEVEL);	
+	dcmtk::log4cplus::SharedAppenderPtr stringlogger(new NDCAsFilenameAppender(boost::filesystem::temp_directory_path()));
+	dcmtk::log4cplus::Logger rootLogger = dcmtk::log4cplus::Logger::getRoot();
+	rootLogger.removeAllAppenders();
+	rootLogger.addAppender(stringlogger);
 
 	if (me)
 	{		
 		me->DoSend(me->m_destination, me->m_threads);
-		me->SetDone(true);	
+		me->SetDone(true);
 	}
 }
 
-void DICOMSender::DoSend(DestinationEntry destination, int threads)
+void DICOMSenderImpl::DoSend(DestinationEntry destination, int threads)
 {
 	OFLog::configure(OFLogger::OFF_LOG_LEVEL);
 	
 	// get a list of files	
 	study_dirs.clear();
 	service.reset();
-	patientdata.GetStudies(boost::bind(&DICOMSender::fillstudies, this, _1));
+	patientdata.GetStudies(boost::bind(&DICOMSenderImpl::fillstudies, this, _1));
 	for (std::vector<boost::filesystem::path>::iterator it = study_dirs.begin(); it != study_dirs.end(); ++it)
 	{
 		// post them in the work
-		service.post(boost::bind(&DICOMSender::SendStudy, this, *it));
+		service.post(boost::bind(&DICOMSenderImpl::SendStudy, this, *it));
 	}
 
 	// run 5 threads
@@ -85,7 +138,7 @@ void DICOMSender::DoSend(DestinationEntry destination, int threads)
 	threadgroup.join_all();
 }
 
-int DICOMSender::fillstudies(Study &study)
+int DICOMSenderImpl::fillstudies(Study &study)
 {
 	// only put in 
 	if (study.checked)
@@ -93,7 +146,7 @@ int DICOMSender::fillstudies(Study &study)
 	return 0;
 }
 
-void DICOMSender::SendStudy(boost::filesystem::path path)
+void DICOMSenderImpl::SendStudy(boost::filesystem::path path)
 {
 	if (IsCanceled())
 		return;
@@ -156,7 +209,7 @@ void DICOMSender::SendStudy(boost::filesystem::path path)
 	}
 }
 
-int DICOMSender::SendABatch(const mapset &sopclassuidtransfersyntax, naturalpathmap &instances)
+int DICOMSenderImpl::SendABatch(const mapset &sopclassuidtransfersyntax, naturalpathmap &instances)
 {		
 	DcmSCU scu;
 
@@ -238,7 +291,7 @@ int DICOMSender::SendABatch(const mapset &sopclassuidtransfersyntax, naturalpath
 	return 0;
 }
 
-void DICOMSender::ScanDir(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax, std::string &study_uid)
+void DICOMSenderImpl::ScanDir(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax, std::string &study_uid)
 {
 	boost::filesystem::path someDir(path);
 	boost::filesystem::directory_iterator end_iter;
@@ -265,7 +318,7 @@ void DICOMSender::ScanDir(boost::filesystem::path path, naturalpathmap &instance
 	}
 }
 
-void DICOMSender::ScanFile(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax, std::string &study_uid)
+void DICOMSenderImpl::ScanFile(boost::filesystem::path path, naturalpathmap &instances, mapset &sopclassuidtransfersyntax, std::string &study_uid)
 {
 	DcmFileFormat dfile;
 	OFCondition cond = dfile.loadFile(path.c_str());
@@ -295,7 +348,7 @@ void DICOMSender::ScanFile(boost::filesystem::path path, naturalpathmap &instanc
 
 }
 
-bool DICOMSender::Echo(DestinationEntry destination)
+bool DICOMSenderImpl::Echo(DestinationEntry destination)
 {
 	DcmSCU scu;
 
@@ -334,34 +387,69 @@ bool DICOMSender::Echo(DestinationEntry destination)
 	return false;
 }
 
-void DICOMSender::Cancel()
+void DICOMSenderImpl::Cancel()
 {
 	boost::mutex::scoped_lock lk(mutex);
 	cancelEvent = true;
 	service.stop();
 }
 
-void DICOMSender::ClearCancel()
+void DICOMSenderImpl::ClearCancel()
 {
 	boost::mutex::scoped_lock lk(mutex);
 	cancelEvent = false;
 }
 
-bool DICOMSender::IsDone()
+bool DICOMSenderImpl::IsDone()
 {
 	boost::mutex::scoped_lock lk(mutex);
 	return doneEvent;
 }
 
-bool DICOMSender::IsCanceled()
+bool DICOMSenderImpl::IsCanceled()
 {
 	boost::mutex::scoped_lock lk(mutex);
 	return cancelEvent;
 }
 
-void DICOMSender::SetDone(bool state)
+void DICOMSenderImpl::SetDone(bool state)
 {
 	boost::mutex::scoped_lock lk(mutex);
 	doneEvent = state;
 }
 
+
+DICOMSender::DICOMSender(PatientData &patientdata)
+{
+	impl = new DICOMSenderImpl(patientdata);
+}
+
+DICOMSender::~DICOMSender(void)
+{
+	delete impl;
+}
+
+void DICOMSender::DoSendAsync(DestinationEntry destination, int threads)
+{
+	impl->DoSendAsync(destination, threads);
+}
+
+void DICOMSender::DoSend(DestinationEntry destination, int threads)
+{
+	impl->DoSend(destination, threads);
+}
+
+bool DICOMSender::Echo(DestinationEntry destination)
+{
+	return DICOMSenderImpl::Echo(destination);
+}
+
+void DICOMSender::Cancel()
+{
+	impl->Cancel();
+}
+
+bool DICOMSender::IsDone()
+{
+	return impl->IsDone();
+}

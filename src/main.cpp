@@ -5,8 +5,7 @@
 
 #include "tonoka_mainFrame.h"
 #include "update.h"
-#include <wx/config.h>
-#include "tonoka_about.h"
+#include "dcm2img.h"
 
 // Visual Leak Detector
 #if defined(_WIN32) && defined(_DEBUG)
