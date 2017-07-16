@@ -14,7 +14,7 @@ void PatientData::createdb()
 	if (db)
 		sqlite3_close(db);
 
-	if (sqlite3_open_v2("tonoka.db", &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK)
+	if (sqlite3_open_v2("tonoka.db", &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, NULL) != SQLITE_OK)
 	{
 		std::ostringstream msg;
 		msg << "Can't create database: " << sqlite3_errmsg(db);
@@ -105,6 +105,15 @@ void PatientData::GetStudies(boost::function< int(Study &) > action)
 	sqlite3_finalize(select);
 }
 
+void PatientData::GetCheckedStudies(boost::function< int(Study &) > action)
+{
+	std::string selectsql = "SELECT studyuid, patid, patname, studydesc, studydate, path, checked FROM studies WHERE (checked = '1') ORDER BY studyuid ASC";
+	sqlite3_stmt *select;
+	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
+	sqlite3_exec_stmt(select, getstudiescallback, &action, NULL);
+	sqlite3_finalize(select);
+}
+
 void PatientData::GetStudies(std::string patientid, std::string patientname, boost::function< int(Study &) > action)
 {
 	std::string selectsql = "SELECT studyuid, patid, patname, studydesc, studydate, path, checked FROM studies WHERE (patid = ? AND patname = ?) ORDER BY studyuid ASC";
@@ -150,14 +159,14 @@ int setint(void *param, int columns, char** values, char**names)
 {
 	int *a = (int *)param;
 
-	*a = (int)values[0];
+	*a = (int)(values[0]);
 
 	return 0;
 }
 
-int PatientData::GetStudyCount()
+int PatientData::GetCheckedStudyCount()
 {
-	std::string selectsql = "SELECT COUNT(*) FROM studies";
+	std::string selectsql = "SELECT COUNT(*) FROM studies WHERE (checked = '1')";
 	sqlite3_stmt *select;
 	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
 

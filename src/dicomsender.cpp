@@ -4,7 +4,6 @@
 #include <set>
 #include <boost/filesystem.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/asio/io_service.hpp>
 #include "patientdata.h"
 #include "destinationentry.h"
 #include <boost/lexical_cast.hpp>
@@ -69,10 +68,10 @@ protected:
 	int m_threads;
 
 	int fillstudies(Study &study);
-
-	boost::asio::io_service service;
-
-	std::vector<boost::filesystem::path> study_dirs;	// list of directories that we are sending	
+	void consumer();
+	
+	boost::mutex queue_mutex;
+	std::vector<boost::filesystem::path> queue;        // list of directories that we will be sending
 };
 
 DICOMSenderImpl::DICOMSenderImpl(PatientData &patientdata)
@@ -120,19 +119,12 @@ void DICOMSenderImpl::DoSend(DestinationEntry destination, int threads)
 	OFLog::configure(OFLogger::OFF_LOG_LEVEL);
 	
 	// get a list of files	
-	study_dirs.clear();
-	service.reset();
-	patientdata.GetStudies(boost::bind(&DICOMSenderImpl::fillstudies, this, _1));
-	for (std::vector<boost::filesystem::path>::iterator it = study_dirs.begin(); it != study_dirs.end(); ++it)
-	{
-		// post them in the work
-		service.post(boost::bind(&DICOMSenderImpl::SendStudy, this, *it));
-	}
-
+	patientdata.GetCheckedStudies(boost::bind(&DICOMSenderImpl::fillstudies, this, _1));
+	
 	// run 5 threads
 	boost::thread_group threadgroup;
 	for (int i = 0; i < threads; i++)
-		threadgroup.create_thread(boost::bind(&boost::asio::io_service::run, &service));
+		threadgroup.create_thread(boost::bind(&DICOMSenderImpl::consumer, this));
 
 	// wait for everything to finish, Cancel() calls service stop and stops farther work from processing
 	threadgroup.join_all();
@@ -140,10 +132,23 @@ void DICOMSenderImpl::DoSend(DestinationEntry destination, int threads)
 
 int DICOMSenderImpl::fillstudies(Study &study)
 {
-	// only put in 
-	if (study.checked)
-		study_dirs.push_back(study.path);
+	queue.push_back(study.path);
 	return 0;
+}
+
+void DICOMSenderImpl::consumer()
+{
+	boost::filesystem::path value;
+	while (!IsCanceled())
+	{
+		{
+			boost::mutex::scoped_lock lk(queue_mutex);
+			value = queue.back();
+		}
+		
+		queue.pop_back();
+		SendStudy(value);		
+	}
 }
 
 void DICOMSenderImpl::SendStudy(boost::filesystem::path path)
@@ -391,7 +396,6 @@ void DICOMSenderImpl::Cancel()
 {
 	boost::mutex::scoped_lock lk(mutex);
 	cancelEvent = true;
-	service.stop();
 }
 
 void DICOMSenderImpl::ClearCancel()

@@ -34,10 +34,11 @@ public:
 	bool Save(boost::filesystem::path filename);
 	int AddStudy(std::string studyuid, std::string patid, std::string patname, std::string studydesc, std::string studydate, boost::filesystem::path path);
 	void GetStudies(boost::function< int(Study &) > action);
+	void GetCheckedStudies(boost::function< int(Study &) > action);
 	void GetStudies(std::string patientid, std::string patientname, boost::function< int(Study &) > action);
 	void SetStudyCheck(std::string studyuid, bool checked);
 	void GetStudy(int id, Study& study);
-	int GetStudyCount();
+	int GetCheckedStudyCount();
 
 protected:
 	sqlite3 *db;
