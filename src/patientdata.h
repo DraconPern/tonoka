@@ -36,7 +36,8 @@ public:
 	void GetStudies(boost::function< int(Study &) > action);
 	void GetStudies(std::string patientid, std::string patientname, boost::function< int(Study &) > action);
 	void SetStudyCheck(std::string studyuid, bool checked);
-	// void GetStudies(std::vector<Study> &studies);	
+	void GetStudy(int id, Study& study);
+	int GetStudyCount();
 
 protected:
 	sqlite3 *db;

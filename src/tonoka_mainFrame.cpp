@@ -23,7 +23,7 @@ mainFrame( parent )
 	m_studies->InsertColumn(6, "Status");
   	m_studies->EnableCheckboxes();
 
-  	m_studies->SetColumnWidth(0, 10);
+  	m_studies->SetColumnWidth(0, 50);
   	m_studies->SetColumnWidth(1, 200);
   	m_studies->SetColumnWidth(2, 100);
   	m_studies->SetColumnWidth(3, 200);
@@ -181,10 +181,10 @@ void tonoka_mainFrame::FillStudyList()
 	wxBusyCursor wait;
 	m_studies->Disconnect(wxEVT_LIST_ITEM_CHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemChecked), NULL, this);
 	m_studies->Disconnect(wxEVT_LIST_ITEM_UNCHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemUnchecked), NULL, this);
-
+	m_studies->Freeze();
 	m_studies->DeleteAllItems();
 	m_engine.patientdata.GetStudies(boost::bind(&tonoka_mainFrame::fillstudiescallback, this, _1));
-
+	m_studies->Thaw();
 	m_studies->Connect(wxEVT_LIST_ITEM_CHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemChecked), NULL, this);
 	m_studies->Connect(wxEVT_LIST_ITEM_UNCHECKED, wxListEventHandler(tonoka_mainFrame::m_studiesOnListItemUnchecked), NULL, this);
 }

@@ -2,7 +2,7 @@
 #include "patientdata.h"
 #include "sqlite3_exec_stmt.h"
 #include <boost/locale.hpp>
-#include <sstream>
+#include <boost/bind.hpp>
 
 PatientData::PatientData()
 {
@@ -96,7 +96,6 @@ int getstudiescallback(void *param,int columns,char** values, char**names)
 	return pfn(result);
 }
 
-// void PatientData::GetStudies(std::vector<Study> &studies)
 void PatientData::GetStudies(boost::function< int(Study &) > action)
 {
 	std::string selectsql = "SELECT studyuid, patid, patname, studydesc, studydate, path, checked FROM studies ORDER BY studyuid ASC";
@@ -129,4 +128,42 @@ void PatientData::SetStudyCheck(std::string studyuid, bool checked)
 	sqlite3_bind_text(select, 2, studyuid.c_str(), studyuid.length(), SQLITE_STATIC);	
 	sqlite3_exec_stmt(select, getstudiescallback, NULL, NULL);
 	sqlite3_finalize(select);
+}
+
+int setstudy(Study &study, Study &setthis)
+{
+	setthis = study;
+	return 0;
+}
+
+void PatientData::GetStudy(int id, Study& study)
+{
+	std::string selectsql = "SELECT studyuid, patid, patname, studydesc, studydate, path, checked FROM studies WHERE (rowid = ?)";
+	sqlite3_stmt *select;
+	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
+	sqlite3_bind_int(select, 1, id);
+	sqlite3_exec_stmt(select, getstudiescallback, &boost::bind(&setstudy, _1, study), NULL);
+	sqlite3_finalize(select);
+}
+
+int setint(void *param, int columns, char** values, char**names)
+{
+	int *a = (int *)param;
+
+	*a = (int)values[0];
+
+	return 0;
+}
+
+int PatientData::GetStudyCount()
+{
+	std::string selectsql = "SELECT COUNT(*) FROM studies";
+	sqlite3_stmt *select;
+	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
+
+	int s = 0;
+	sqlite3_exec_stmt(select, getstudiescallback, &s, NULL);
+	sqlite3_finalize(select);
+
+	return s;
 }

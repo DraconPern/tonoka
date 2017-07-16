@@ -64,8 +64,7 @@ set(tonoka_HEADERS
 	src/dicomsender.h
 	src/dcm2img.h
 	src/update.h
-	src/alphanum.hpp
-	src/ndcappender.h
+	src/alphanum.hpp	
 )
 
 set(tonoka_SRCS
@@ -86,7 +85,7 @@ set(tonoka_SRCS
 	src/dicomsender.cpp
 	src/dcm2img.cpp
 	src/update.cpp
-	src/ndcappender.cpp
+	src/ndcappender.cpp	
 )
 
 if(WIN32)
