@@ -153,6 +153,7 @@ bool DICOMFileScanner::ScanDir(const boost::filesystem::path &basepath, const bo
 
 			if (boost::filesystem::is_regular_file(dir_iter->status()))
 			{
+				// scan, and if found a study, exit, since we assume all files in the directory are the same study
 				if (ScanFile(basepath, *dir_iter))
 					return true;
 			}

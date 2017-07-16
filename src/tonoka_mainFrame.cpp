@@ -124,7 +124,6 @@ void tonoka_mainFrame::OnUpdate( wxCommandEvent& event )
 	boost::filesystem::path p(m_directory->GetValue().fn_str());
 	m_engine.StartScan(p, m_depth->GetValue());
 
-
 	tonoka_searchStatus dlg(this);
 	dlg.m_scanner = &m_engine.scanner;
 

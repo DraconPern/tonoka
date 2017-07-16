@@ -62,7 +62,6 @@ set(tonoka_HEADERS
 	src/destinationentry.h
 	src/dicomscanner.h
 	src/dicomsender.h
-	src/dcm2img.h
 	src/update.h
 	src/alphanum.hpp
 )
@@ -83,7 +82,6 @@ set(tonoka_SRCS
 	src/patientdata.cpp
 	src/dicomscanner.cpp
 	src/dicomsender.cpp
-	src/dcm2img.cpp
 	src/update.cpp
 )
 

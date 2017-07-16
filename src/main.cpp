@@ -7,7 +7,6 @@
 #include "update.h"
 #include <wx/config.h>
 #include "tonoka_about.h"
-#include "dcm2img.h"
 
 // Visual Leak Detector
 #if defined(_WIN32) && defined(_DEBUG)
@@ -37,7 +36,7 @@ BEGIN_EVENT_TABLE(MyApp, wxApp)
 	EVT_MENU(wxID_ABOUT, MyApp::OnAbout)
 	END_EVENT_TABLE()
 
-	bool MyApp::OnInit()
+bool MyApp::OnInit()
 {
 	wxTheApp->SetAppName("tonoka");
 	wxTheApp->SetVendorName("FrontMotion");
