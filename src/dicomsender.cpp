@@ -138,15 +138,16 @@ int DICOMSenderImpl::fillstudies(Study &study)
 
 void DICOMSenderImpl::consumer()
 {
-	boost::filesystem::path value;
 	while (!IsCanceled())
 	{
+		boost::filesystem::path value;
+
 		{
 			boost::mutex::scoped_lock lk(queue_mutex);
 			value = queue.back();
+			queue.pop_back();
 		}
-		
-		queue.pop_back();
+
 		SendStudy(value);		
 	}
 }
