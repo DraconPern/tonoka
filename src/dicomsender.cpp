@@ -10,6 +10,9 @@
 #include <boost/thread.hpp>
 #include "destinationentry.h"
 #include "ndcappender.h"
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
 
 // work around the fact that dcmtk doesn't work in unicode mode, so all string operation needs to be converted from/to mbcs
 #ifdef _UNICODE
@@ -138,14 +141,18 @@ int DICOMSenderImpl::fillstudies(Study &study)
 
 void DICOMSenderImpl::consumer()
 {
+	boost::random::mt19937 rng(std::time(0));
+
 	while (!IsCanceled())
 	{
 		boost::filesystem::path value;
 
 		{
 			boost::mutex::scoped_lock lk(queue_mutex);
-			value = queue.back();
-			queue.pop_back();
+			boost::random::uniform_int_distribution<> dist(0, queue.size() - 1);
+			int i = dist(rng);
+			value = queue[i];
+			queue.erase(queue.begin() + i);
 		}
 
 		SendStudy(value);		
