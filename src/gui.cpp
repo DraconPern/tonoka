@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Jun 17 2015)
+// C++ code generated with wxFormBuilder (version Jun 28 2017)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -354,7 +354,7 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 	m_buildinfo->Wrap( -1 );
 	bSizer28->Add( m_buildinfo, 0, wxALL, 5 );
 	
-	m_copyright = new wxStaticText( this, wxID_ANY, _("Copyright (C) 2015-2016 Ing-Long Eric Kuo"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_copyright = new wxStaticText( this, wxID_ANY, _("Copyright (C) 2015-2017 Ing-Long Eric Kuo"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_copyright->Wrap( -1 );
 	bSizer28->Add( m_copyright, 0, wxALL, 5 );
 	
@@ -365,7 +365,7 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 	m_staticText13->Wrap( -1 );
 	bSizer27->Add( m_staticText13, 0, wxALL, 5 );
 	
-	m_hyperlink1 = new wxHyperlinkCtrl( this, wxID_ANY, wxEmptyString, wxT("http://www.draconpern.com/software/finaco"), wxDefaultPosition, wxDefaultSize, wxHL_DEFAULT_STYLE );
+	m_hyperlink1 = new wxHyperlinkCtrl( this, wxID_ANY, wxEmptyString, wxT("http://www.draconpern.com/software/tonoka"), wxDefaultPosition, wxDefaultSize, wxHL_DEFAULT_STYLE );
 	bSizer27->Add( m_hyperlink1, 0, wxALL, 5 );
 	
 	

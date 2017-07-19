@@ -2228,6 +2228,8 @@
                                         <property name="window_style"></property>
                                         <event name="OnChar"></event>
                                         <event name="OnCombobox"></event>
+                                        <event name="OnComboboxCloseup"></event>
+                                        <event name="OnComboboxDropdown"></event>
                                         <event name="OnEnterWindow"></event>
                                         <event name="OnEraseBackground"></event>
                                         <event name="OnKeyDown"></event>
@@ -3662,7 +3664,7 @@
                         <property name="gripper">0</property>
                         <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
-                        <property name="label">Copyright (C) 2015-2016 Ing-Long Eric Kuo</property>
+                        <property name="label">Copyright (C) 2015-2017 Ing-Long Eric Kuo</property>
                         <property name="max_size"></property>
                         <property name="maximize_button">0</property>
                         <property name="maximum_size"></property>
@@ -3861,7 +3863,7 @@
                                 <property name="subclass"></property>
                                 <property name="toolbar_pane">0</property>
                                 <property name="tooltip"></property>
-                                <property name="url">http://www.draconpern.com/software/finaco</property>
+                                <property name="url">http://www.draconpern.com/software/tonoka</property>
                                 <property name="visited_color"></property>
                                 <property name="window_extra_style"></property>
                                 <property name="window_name"></property>
