@@ -202,7 +202,7 @@ void DICOMSenderImpl::SendStudy(boost::filesystem::path path)
 #ifdef _WIN32
 				Sleep(200);
 #else
-                usleep(200);
+                usleep(200000);
 #endif
                 sleeploop--;
 				if (IsCanceled())
