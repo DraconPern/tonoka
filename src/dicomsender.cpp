@@ -241,9 +241,13 @@ int DICOMSenderImpl::SendABatch(const mapset &sopclassuidtransfersyntax, natural
 	OFList<OFString> defaulttransfersyntax;
 	defaulttransfersyntax.push_back(UID_LittleEndianExplicitTransferSyntax);
 
+	mapset sopclassuidtransfersyntax2 = sopclassuidtransfersyntax;
 	// for every class..
-	for (mapset::const_iterator it = sopclassuidtransfersyntax.begin(); it != sopclassuidtransfersyntax.end(); it++)
+	for (mapset::iterator it = sopclassuidtransfersyntax2.begin(); it != sopclassuidtransfersyntax2.end(); it++)
 	{
+		// let's do our own optimization, propose JPEG-LS
+		it->second.insert(UID_JPEGLSLosslessTransferSyntax);
+
 		// make list of what's in the file, and propose it first.  default proposed as a seperate context
 		OFList<OFString> transfersyntax;
 		for(std::set<std::string>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
@@ -286,6 +290,9 @@ int DICOMSenderImpl::SendABatch(const mapset &sopclassuidtransfersyntax, natural
 		OFString sopclassuid;
 		dcmff.getDataset()->findAndGetOFString(DCM_SOPClassUID, sopclassuid);
 	
+		if (dcmff.getDataset()->chooseRepresentation(EXS_JPEGLSLossless, NULL).good())
+			fileTransfer = dcmff.getDataset()->getCurrentXfer();
+
 		// out found.. change to 
 		T_ASC_PresentationContextID pid = scu.findAnyPresentationContextID(sopclassuid, fileTransfer.getXferID());
 		
