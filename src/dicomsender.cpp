@@ -162,7 +162,14 @@ void DICOMSenderImpl::consumer()
 			}
 		}
 
-		SendStudy(value);		
+		try
+		{
+			SendStudy(value);
+		}
+		catch (...)
+		{
+
+		}
 	}
 }
 
