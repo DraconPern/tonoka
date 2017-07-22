@@ -145,25 +145,26 @@ void DICOMSenderImpl::consumer()
 
 	while (!IsCanceled())
 	{
-		boost::filesystem::path value;
-		
-		{
-			boost::mutex::scoped_lock lk(queue_mutex);
-			if (queue.size() >= 1)
-			{
-				boost::random::uniform_int_distribution<> dist(0, queue.size() - 1);
-				int i = dist(rng);
-				value = queue[i];
-				queue.erase(queue.begin() + i);
-			}
-			else
-			{
-				return;
-			}
-		}
-
 		try
 		{
+			boost::filesystem::path value;
+		
+			{
+				boost::mutex::scoped_lock lk(queue_mutex);
+				if (queue.size() >= 1)
+				{
+					boost::random::uniform_int_distribution<> dist(0, queue.size() - 1);
+					int i = dist(rng);
+					value = queue[i];
+					queue.erase(queue.begin() + i);
+				}
+				else
+				{
+					return;
+				}
+			}
+
+		
 			SendStudy(value);
 		}
 		catch (...)
