@@ -305,9 +305,15 @@ int DICOMSenderImpl::SendABatch(const mapset &sopclassuidtransfersyntax, natural
 		OFString sopclassuid;
 		dcmff.getDataset()->findAndGetOFString(DCM_SOPClassUID, sopclassuid);
 	
-		if(scu.findPresentationContextID(sopclassuid, UID_JPEGLSLosslessTransferSyntax) != 0)
-			if (dcmff.getDataset()->chooseRepresentation(EXS_JPEGLSLossless, NULL).good())
-				fileTransfer = dcmff.getDataset()->getCurrentXfer();
+		if (scu.findPresentationContextID(sopclassuid, UID_JPEGLSLosslessTransferSyntax) != 0)
+		{
+			dcmff.loadAllDataIntoMemory();
+
+			if(dcmff.getDataset())
+				dcmff.getDataset()->chooseRepresentation(EXS_JPEGLSLossless, NULL);
+			
+			fileTransfer = dcmff.getDataset()->getCurrentXfer();
+		}
 
 		// out found.. change to 
 		T_ASC_PresentationContextID pid = scu.findAnyPresentationContextID(sopclassuid, fileTransfer.getXferID());
