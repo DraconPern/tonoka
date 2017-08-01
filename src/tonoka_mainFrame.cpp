@@ -102,8 +102,9 @@ void tonoka_mainFrame::OnLoad(wxCommandEvent& event)
 	wxFileDialog dlg(this, "Load...", wxEmptyString, wxEmptyString, "sqlite database (*.db)|*.db", wxFD_OPEN | wxRESIZE_BORDER | wxFD_FILE_MUST_EXIST);
 	if (dlg.ShowModal() == wxID_OK)
 	{
+		wxBusyInfo wait("Please wait, loading ...");
 		m_studies->DeleteAllItems();
-    boost::filesystem::path p(dlg.GetPath().fn_str());
+		boost::filesystem::path p(dlg.GetPath().fn_str());
 		m_engine.patientdata.Load(p);
 		FillStudyList();
 	}
@@ -149,6 +150,7 @@ void tonoka_mainFrame::OnSend( wxCommandEvent& event )
 	// show and wait for thread to end.
 	dlg.ShowModal();
 
+	wxBusyInfo wait("Please wait, loading ...");
 	FillStudyList();
 }
 
