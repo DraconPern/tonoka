@@ -44,7 +44,7 @@ IF "%TYPE%" == "Release" copy /Y %DEVSPACE%\libiconv\Release\lib\libiconv.lib %D
 cd %DEVSPACE%
 git clone git://git.dcmtk.org/dcmtk.git
 cd dcmtk
-git pull
+git fetch
 git checkout -f DCMTK-3.6.2
 mkdir build-%TYPE%
 cd build-%TYPE%
