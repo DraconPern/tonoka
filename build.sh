@@ -14,6 +14,7 @@ DEVSPACE=`pwd`
 cd $DEVSPACE
 [[ -d dcmtk ]] || git clone git://git.dcmtk.org/dcmtk.git
 cd dcmtk
+git pull
 git checkout -f DCMTK-3.6.2
 mkdir -p build-$TYPE
 cd build-$TYPE
