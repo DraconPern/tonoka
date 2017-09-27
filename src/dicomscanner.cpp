@@ -114,10 +114,15 @@ void DICOMFileScanner::ScanStructureDir(const boost::filesystem::path &path, int
 	if (IsCanceled())
 		return;
 
+	// if we are at the study depth the user told us about
 	if (depth <= 0)
 	{
-		// start finding a study to add
-		ScanDir(path, path);
+		// no need to scan if the path already exists in the database
+		if (!patientdata.PathExists(path))
+		{
+			// start finding a study to add
+			ScanDir(path, path);
+		}
 		return;
 	}
 

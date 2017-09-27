@@ -173,3 +173,19 @@ int PatientData::GetCheckedStudyCount()
 	sqlite3_exec(db, selectsql.c_str(), setint, &s, NULL);
 	return s;
 }
+
+bool PatientData::PathExists(boost::filesystem::path path)
+{
+	std::string selectsql = "SELECT COUNT(*) FROM studies WHERE (path = ?)";
+	sqlite3_stmt *select;
+	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
+
+	std::string p = boost::locale::conv::utf_to_utf<char>(path.c_str());
+	sqlite3_bind_text(select, 1, p.c_str(), p.length(), SQLITE_STATIC);
+
+	int s = 0;
+	sqlite3_exec_stmt(select, setint, &s, NULL);
+	sqlite3_finalize(select);
+
+	return s > 0;
+}

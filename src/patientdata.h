@@ -39,6 +39,7 @@ public:
 	void SetStudyCheck(std::string studyuid, bool checked);
 	void GetStudy(int id, Study& study);
 	int GetCheckedStudyCount();
+	bool PathExists(boost::filesystem::path path);
 
 protected:
 	sqlite3 *db;
