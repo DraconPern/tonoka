@@ -131,6 +131,7 @@ void tonoka_mainFrame::OnUpdate( wxCommandEvent& event )
 	// show and wait for thread to end.
 	dlg.ShowModal();
 
+	wxBusyInfo wait("Please wait, loading ...");
 	FillStudyList();
 }
 
