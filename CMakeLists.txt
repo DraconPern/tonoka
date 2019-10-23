@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(tonoka)
 
-set(VERSION 1.0.2)
+set(VERSION 1.0.3)
 
 add_definitions(-DTONOKA_VERSION="${VERSION}")
 
