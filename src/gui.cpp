@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Jun 28 2017)
+// C++ code generated with wxFormBuilder (version Nov  6 2017)
 // http://www.wxformbuilder.org/
 //
-// PLEASE DO "NOT" EDIT THIS FILE!
+// PLEASE DO *NOT* EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
 #include "gui.h"
@@ -203,8 +203,21 @@ mainFrame::mainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_staticText171->Wrap( -1 );
 	fgSizer1->Add( m_staticText171, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 	
+	wxBoxSizer* bSizer251;
+	bSizer251 = new wxBoxSizer( wxHORIZONTAL );
+	
 	m_depth = new wxSpinCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10, 0 );
-	fgSizer1->Add( m_depth, 0, wxALL, 5 );
+	bSizer251->Add( m_depth, 0, wxALL, 5 );
+	
+	m_staticText17 = new wxStaticText( this, wxID_ANY, _("Threads"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText17->Wrap( -1 );
+	bSizer251->Add( m_staticText17, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	
+	m_threads = new wxSpinCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 4 );
+	bSizer251->Add( m_threads, 0, wxALL, 5 );
+	
+	
+	fgSizer1->Add( bSizer251, 1, wxEXPAND, 5 );
 	
 	m_panel4 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	fgSizer1->Add( m_panel4, 1, wxEXPAND | wxALL, 5 );
@@ -219,12 +232,15 @@ mainFrame::mainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_button121 = new wxButton( this, wxID_ANY, _("Edit..."), wxDefaultPosition, wxDefaultSize, 0 );
 	fgSizer1->Add( m_button121, 0, wxALL, 5 );
 	
-	m_staticText17 = new wxStaticText( this, wxID_ANY, _("Threads"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText17->Wrap( -1 );
-	fgSizer1->Add( m_staticText17, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	m_staticText172 = new wxStaticText( this, wxID_ANY, _("StudyUID"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText172->Wrap( -1 );
+	fgSizer1->Add( m_staticText172, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 	
-	m_threads = new wxSpinCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 4 );
-	fgSizer1->Add( m_threads, 0, wxALL, 5 );
+	m_searchtext = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer1->Add( m_searchtext, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+	
+	m_search = new wxButton( this, wxID_ANY, _("Search"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer1->Add( m_search, 0, wxALL, 5 );
 	
 	
 	bSizer16->Add( fgSizer1, 0, wxEXPAND, 5 );
@@ -313,6 +329,7 @@ mainFrame::mainFrame( wxWindow* parent, wxWindowID id, const wxString& title, co
 	// Connect Events
 	m_button6->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnBrowse ), NULL, this );
 	m_button121->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnDestinationEdit ), NULL, this );
+	m_search->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnTextSearch ), NULL, this );
 	m_studies->Connect( wxEVT_COMMAND_LIST_COL_CLICK, wxListEventHandler( mainFrame::m_studiesOnListColClick ), NULL, this );
 	m_button13->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnLoad ), NULL, this );
 	m_button14->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnSave ), NULL, this );
@@ -328,6 +345,7 @@ mainFrame::~mainFrame()
 	// Disconnect Events
 	m_button6->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnBrowse ), NULL, this );
 	m_button121->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnDestinationEdit ), NULL, this );
+	m_search->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnTextSearch ), NULL, this );
 	m_studies->Disconnect( wxEVT_COMMAND_LIST_COL_CLICK, wxListEventHandler( mainFrame::m_studiesOnListColClick ), NULL, this );
 	m_button13->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnLoad ), NULL, this );
 	m_button14->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( mainFrame::OnSave ), NULL, this );
@@ -354,7 +372,7 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 	m_buildinfo->Wrap( -1 );
 	bSizer28->Add( m_buildinfo, 0, wxALL, 5 );
 	
-	m_copyright = new wxStaticText( this, wxID_ANY, _("Copyright (C) 2015-2017 Ing-Long Eric Kuo"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_copyright = new wxStaticText( this, wxID_ANY, _("Copyright (C) 2015-2019 Ing-Long Eric Kuo"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_copyright->Wrap( -1 );
 	bSizer28->Add( m_copyright, 0, wxALL, 5 );
 	

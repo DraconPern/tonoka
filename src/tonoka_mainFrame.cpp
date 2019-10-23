@@ -205,12 +205,27 @@ void tonoka_mainFrame::m_studiesOnListItemUnchecked(wxListEvent& event)
 
 int tonoka_mainFrame::fillstudiescallback(Study &study)
 {
-	m_studies->InsertItem(0, "");
-	m_studies->SetItem(0, 1, study.patname);
-	m_studies->SetItem(0, 2, wxString::FromUTF8(study.studydate.c_str()));
-	m_studies->SetItem(0, 3, wxString::FromUTF8(study.studydesc.c_str()));
-	m_studies->SetItem(0, 4, wxString::FromUTF8(study.studyuid.c_str()));
-	m_studies->SetItem(0, 5, study.path.c_str());
-	m_studies->CheckItem(0, study.checked);
+	int count = m_studies->GetItemCount();
+	m_studies->InsertItem(count, wxString::FromUTF8(study.studyuid.c_str()));
+	m_studies->SetItem(count, 1, study.patname);
+	m_studies->SetItem(count, 2, wxString::FromUTF8(study.studydate.c_str()));
+	m_studies->SetItem(count, 3, wxString::FromUTF8(study.studydesc.c_str()));
+	m_studies->SetItem(count, 4, wxString::FromUTF8(study.studyuid.c_str()));
+	m_studies->SetItem(count, 5, study.path.c_str());
+	m_studies->CheckItem(count, study.checked);
+
 	return 0;
+}
+
+void tonoka_mainFrame::OnTextSearch(wxCommandEvent& event)
+{
+	int selected = m_studies->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+	std::string text = m_searchtext->GetValue().ToUTF8();
+	//std::string foundstudyuid = m_engine.patientdata.TextSearch(selected + 1, text);
+
+	int newselected = m_studies->FindItem(selected, text);
+	if (newselected == -1)
+		wxMessageBox("Not found", "Search");
+	m_studies->SetItemState(newselected, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+	m_studies->EnsureVisible(newselected);
 }

@@ -1,11 +1,12 @@
 # tonoka
 Windows [![Build Status](http://home.draconpern.com:8080/buildStatus/icon?job=tonoka.win32.release)](http://home.draconpern.com:8080/job/tonoka.win32.release/) OS X [![Build Status](http://home.draconpern.com:8080/buildStatus/icon?job=tonoka.osx.release)](http://home.draconpern.com:8080/job/tonoka.osx.release/) Linux [![Build Status](http://home.draconpern.com:8080/buildStatus/icon?job=tonoka.linux.debug)](http://home.draconpern.com:8080/job/tonoka.linux.debug/)
 
-Cross-platform software for performing PACS migration using C-STORE.
+Cross-platform software for performing PACS migration using C-STORE
 
 - Supports Windows Vista and above including Windows 10
 - Supported on OS X
 - Works on Linux
+- Reads dicom files directly from hard drive without needing old PACS software
 - Fast multithreaded operations
 - Stop migration midway and pick up where you left off
 - Perform migration over time by getting new studies

@@ -36,6 +36,7 @@ class tonoka_mainFrame : public mainFrame
 		void OnSend( wxCommandEvent& event );
 		void OnAbout( wxCommandEvent& event );
 		void OnExit( wxCommandEvent& event );
+		void OnTextSearch( wxCommandEvent& event);
 	public:
 		/** Constructor */
 		tonoka_mainFrame( wxWindow* parent );

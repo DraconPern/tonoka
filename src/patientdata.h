@@ -40,7 +40,7 @@ public:
 	void GetStudy(int id, Study& study);
 	int GetCheckedStudyCount();
 	bool PathExists(boost::filesystem::path path);
-
+	std::string TextSearch(int start, std::string text);
 protected:
 	sqlite3 *db;
 

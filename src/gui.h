@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Jun 28 2017)
+// C++ code generated with wxFormBuilder (version Nov  6 2017)
 // http://www.wxformbuilder.org/
 //
-// PLEASE DO "NOT" EDIT THIS FILE!
+// PLEASE DO *NOT* EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
 #ifndef __GUI_H__
@@ -93,12 +93,15 @@ class mainFrame : public wxFrame
 		wxButton* m_button6;
 		wxStaticText* m_staticText171;
 		wxSpinCtrl* m_depth;
+		wxStaticText* m_staticText17;
+		wxSpinCtrl* m_threads;
 		wxPanel* m_panel4;
 		wxStaticText* m_staticText2;
 		wxComboBox* m_destination;
 		wxButton* m_button121;
-		wxStaticText* m_staticText17;
-		wxSpinCtrl* m_threads;
+		wxStaticText* m_staticText172;
+		wxTextCtrl* m_searchtext;
+		wxButton* m_search;
 		wxListCtrl* m_studies;
 		wxButton* m_button13;
 		wxButton* m_button14;
@@ -112,6 +115,7 @@ class mainFrame : public wxFrame
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnBrowse( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDestinationEdit( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTextSearch( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_studiesOnListColClick( wxListEvent& event ) { event.Skip(); }
 		virtual void OnLoad( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSave( wxCommandEvent& event ) { event.Skip(); }

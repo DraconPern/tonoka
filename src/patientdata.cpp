@@ -23,6 +23,7 @@ void PatientData::createdb()
 	}	
 		
 	sqlite3_exec(db, "CREATE TABLE studies (studyuid TEXT UNIQUE, patid TEXT, patname TEXT, studydesc TEXT, studydate TEXT, path TEXT, checked TEXT)", NULL, NULL, NULL);
+	sqlite3_exec(db, "CREATE TEMP VIEW listctrl AS SELECT * FROM studies ORDER BY studyuid ASC", NULL, NULL, NULL);
 }
 
 PatientData::~PatientData()
@@ -163,7 +164,16 @@ int setint(void *param, int columns, char** values, char**names)
 
 	*a = boost::lexical_cast<int>(values[0]);
 
-	return 0;
+	return 1;
+}
+
+int setstring(void *param, int columns, char** values, char**names)
+{
+	std::string *a = (std::string *)param;
+
+	*a = values[0];
+
+	return 1;
 }
 
 int PatientData::GetCheckedStudyCount()
@@ -188,4 +198,23 @@ bool PatientData::PathExists(boost::filesystem::path path)
 	sqlite3_finalize(select);
 
 	return s > 0;
+}
+
+std::string PatientData::TextSearch(int start, std::string text)
+{
+	std::string selectsql = "SELECT studyuid FROM listctrl WHERE studyuid LIKE ? OR patid LIKE ? OR patname LIKE ? LIMIT 1 OFFSET ?";
+	sqlite3_stmt *select;
+	sqlite3_prepare_v2(db, selectsql.c_str(), selectsql.length(), &select, NULL);
+
+	text = "%" + text + "%";
+	sqlite3_bind_text(select, 1, text.c_str(), text.length(), SQLITE_STATIC);
+	sqlite3_bind_text(select, 2, text.c_str(), text.length(), SQLITE_STATIC);
+	sqlite3_bind_text(select, 3, text.c_str(), text.length(), SQLITE_STATIC);
+	sqlite3_bind_int(select, 4, start);
+	
+	std::string studyuid;
+	sqlite3_exec_stmt(select, setstring, &studyuid, NULL);
+	sqlite3_finalize(select);
+
+	return studyuid;
 }
