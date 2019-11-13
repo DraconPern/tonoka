@@ -1,5 +1,5 @@
 # tonoka
-Windows [![Build Status](http://home.draconpern.com:8080/buildStatus/icon?job=tonoka.win32.release)](http://home.draconpern.com:8080/job/tonoka.win32.release/) OS X [![Build Status](http://home.draconpern.com:8080/buildStatus/icon?job=tonoka.osx.release)](http://home.draconpern.com:8080/job/tonoka.osx.release/) Linux [![Build Status](http://home.draconpern.com:8080/buildStatus/icon?job=tonoka.linux.debug)](http://home.draconpern.com:8080/job/tonoka.linux.debug/)
+Windows [![Build Status](https://home.draconpern.com:8081/buildStatus/icon?job=tonoka.win32.release)](https://home.draconpern.com:8081/job/tonoka.win32.release/) OS X [![Build Status](https://home.draconpern.com:8081/buildStatus/icon?job=tonoka.osx.release)](https://home.draconpern.com:8081/job/tonoka.osx.release/) Linux [![Build Status](https://home.draconpern.com:8081/buildStatus/icon?job=tonoka.linux.debug)](https://home.draconpern.com:8081/job/tonoka.linux.debug/)
 
 Cross-platform software for performing PACS migration using C-STORE
 
